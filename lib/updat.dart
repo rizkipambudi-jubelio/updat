@@ -21,6 +21,7 @@ class UpdatWidget extends StatefulWidget {
     this.callback,
     this.openOnDownload = true,
     this.closeOnInstall = false,
+    this.openDialogOnAvailable = false,
     super.key,
   });
 
@@ -79,6 +80,9 @@ class UpdatWidget extends StatefulWidget {
 
   /// If true, the app will be closed when the installer is launched.
   final bool closeOnInstall;
+
+  /// If true, the dialog will be opened when the update is available.
+  final bool openDialogOnAvailable;
 
   @override
   State<UpdatWidget> createState() => _UpdatWidgetState();
@@ -155,6 +159,11 @@ class _UpdatWidgetState extends State<UpdatWidget> {
                     status = UpdatStatus.availableWithChangelog;
                     changelog = changelogRec;
                   });
+                  if (widget.openDialogOnAvailable) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      openDialog();
+                    });
+                  }
                 }
               }).catchError((_) {
                 return;
@@ -163,6 +172,11 @@ class _UpdatWidgetState extends State<UpdatWidget> {
               setState(() {
                 status = UpdatStatus.available;
               });
+              if (mounted && widget.openDialogOnAvailable) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  openDialog();
+                });
+              }
             }
           } else {
             setState(() {
