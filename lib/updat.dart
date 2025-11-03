@@ -22,6 +22,7 @@ class UpdatWidget extends StatefulWidget {
     this.openOnDownload = true,
     this.closeOnInstall = false,
     this.openDialogOnAvailable = false,
+    this.forceUpdateDialog = false,
     super.key,
   });
 
@@ -59,6 +60,7 @@ class UpdatWidget extends StatefulWidget {
     required String appVersion,
     required UpdatStatus status,
     required String? changelog,
+    required bool forceUpdateDialog,
     required void Function() checkForUpdate,
     required void Function() openDialog,
     required void Function() startUpdate,
@@ -83,6 +85,9 @@ class UpdatWidget extends StatefulWidget {
 
   /// If true, the dialog will be opened when the update is available.
   final bool openDialogOnAvailable;
+
+  /// If true, display update dialog for custom forced update via dialog
+  final bool forceUpdateDialog;
 
   @override
   State<UpdatWidget> createState() => _UpdatWidgetState();
@@ -159,7 +164,7 @@ class _UpdatWidgetState extends State<UpdatWidget> {
                     status = UpdatStatus.availableWithChangelog;
                     changelog = changelogRec;
                   });
-                  if (widget.openDialogOnAvailable) {
+                  if (widget.openDialogOnAvailable || widget.forceUpdateDialog) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       openDialog();
                     });
@@ -172,7 +177,7 @@ class _UpdatWidgetState extends State<UpdatWidget> {
               setState(() {
                 status = UpdatStatus.available;
               });
-              if (mounted && widget.openDialogOnAvailable) {
+              if (mounted && (widget.openDialogOnAvailable || widget.forceUpdateDialog)) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   openDialog();
                 });
@@ -201,6 +206,7 @@ class _UpdatWidgetState extends State<UpdatWidget> {
         latestVersion: latestVersion?.toString(),
         status: status,
         changelog: changelog,
+        forceUpdateDialog: widget.forceUpdateDialog,
         checkForUpdate: updateValues,
         openDialog: openDialog,
         startUpdate: startUpdate,
